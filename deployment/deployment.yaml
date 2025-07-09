@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-signing-helper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aws-signing-helper
+  template:
+    metadata:
+      labels:
+        app: aws-signing-helper
+    spec:
+      containers:
+        - name: aws-signing-helper
+          image: ghcr.io/simonstiil/aws-signing-helper-secret-updater:latest
+          env:
+            - name: TRUST_ANCHOR_ARN
+              valueFrom:
+                configMapKeyRef:
+                  name: aws-signing-helper-env
+                  key: TRUST_ANCHOR_ARN
+            - name: PROFILE_ARN
+              valueFrom:
+                configMapKeyRef:
+                  name: aws-signing-helper-env
+                  key: PROFILE_ARN
+            - name: ROLE_ARN
+              valueFrom:
+                configMapKeyRef:
+                  name: aws-signing-helper-env
+                  key: ROLE_ARN
+            - name: CERTIFICATE
+              value: /etc/certs/tls.crt
+            - name: PRIVATE_KEY
+              value: /etc/certs/tls.key
+            - name: FOLDER_TO_READ
+              value: /home/user/.aws
+            - name: SECRET_TO_WRITE
+              value: aws-signing-helper
+          volumeMounts:
+            - name: cert-volume
+              mountPath: /etc/certs
+              readOnly: true
+            - name: credentials
+              mountPath: /home/user/.aws
+      volumes:
+        - name: cert-volume
+          secret:
+            secretName: iamra-ss-cert
+        - name: credentials
+          emptyDir:
+            sizeLimit: 10Mi
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+
+      serviceAccountName: aws-signing-helper
