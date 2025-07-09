@@ -3,3 +3,5 @@ kind: Kustomization
 resources:
 - authorization.yaml
 - deployment.yaml
+- configmap.yaml
+- certificate.yaml
