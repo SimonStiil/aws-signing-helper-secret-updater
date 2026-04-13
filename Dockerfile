@@ -4,8 +4,9 @@ ARG USER=user
 RUN apk add --no-cache bash libc6-compat && \
     adduser -D $USER
 
-FROM base AS builder
-RUN apk add --no-cache make git go && \
+FROM golang:1.26.2-alpine AS builder
+WORKDIR /app
+RUN apk add --no-cache make git bash gcc musl-dev && \
     git clone https://github.com/aws/rolesanywhere-credential-helper.git && \
     sh -c 'cd rolesanywhere-credential-helper && make release' && \
     git clone https://github.com/SimonStiil/go-file-secret-sync.git && \
