@@ -1,4 +1,4 @@
-FROM alpine:3.23.3 AS base
+FROM alpine:3.23.4 AS base
 WORKDIR /app
 ARG USER=user
 RUN apk add --no-cache bash libc6-compat && \
